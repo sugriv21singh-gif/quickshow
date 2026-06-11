@@ -1,0 +1,15 @@
+{
+  "name": "quickshow-root",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "npx concurrently \"npm --prefix server run server\" \"npm --prefix client run dev\"",
+    "start": "npx concurrently \"npm --prefix server start\" \"npm --prefix client preview\"",
+    "install-all": "npm install"
+  },
+  "devDependencies": {}
+}

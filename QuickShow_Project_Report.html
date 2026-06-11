@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuickShow Project Report</title>
+  <style>
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f5f7fb; color: #1f2937; }
+    .page { max-width: 960px; margin: 24px auto; background: #ffffff; padding: 32px; border-radius: 20px; box-shadow: 0 20px 45px rgba(15,23,42,.08); }
+    h1, h2, h3, h4, h5 { color: #111827; }
+    h1 { font-size: 2.4rem; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.8rem; margin-top: 2.2rem; margin-bottom: 0.8rem; }
+    h3 { font-size: 1.4rem; margin-top: 1.8rem; margin-bottom: 0.6rem; }
+    p { line-height: 1.75; margin: 0.9rem 0; }
+    ul { margin: 0.8rem 0 0.8rem 1.5rem; }
+    li { margin-bottom: 0.5rem; }
+    pre { background: #111827; color: #f8fafc; padding: 18px; border-radius: 14px; overflow-x: auto; margin: 1rem 0; }
+    code { background: #f3f4f6; padding: 2px 6px; border-radius: 6px; }
+    img { max-width: 100%; border-radius: 16px; margin: 1rem 0; border: 1px solid #d1d5db; }
+    blockquote { margin: 1rem 0; padding: 16px 20px; background: #eef2ff; border-left: 5px solid #4f46e5; border-radius: 12px; }
+    a { color: #2563eb; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    hr { border: none; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    .section-number { color: #2563eb; font-weight: 700; margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1>QuickShow Project Report</h1>
+    <p><strong>Author:</strong> Project Analysis Report</p>
+    <p><strong>Date:</strong> May 31, 2026</p>
+    <hr>
+    <h2>Executive Summary</h2>
+    <p>QuickShow is a complete movie ticket booking web application built using React, Vite, Express, MongoDB, Clerk authentication, and Razorpay payment integration. This report covers the overall architecture, feature set, setup instructions, code highlights, and screenshot documentation from the live application.</p>
+    <h2>Contents</h2>
+    <ul>
+      <li>Project Overview</li>
+      <li>Project Structure</li>
+      <li>Frontend Architecture</li>
+      <li>Booking Flow</li>
+      <li>Server Architecture</li>
+      <li>Authentication and Authorization</li>
+      <li>Screenshot Evidence</li>
+      <li>Setup and Run Instructions</li>
+      <li>Key Benefits</li>
+      <li>Conclusion</li>
+    </ul>
+    <hr>
+    <h2>Project Overview</h2>
+    <h3><span class="section-number">3.1</span>Description</h3>
+    <p>QuickShow is designed to deliver an online entertainment booking experience. It allows users to browse movies, choose showtimes, select seats, and complete bookings with secure payment processing. The application also includes an admin section for show management and booking oversight.</p>
+    <h3><span class="section-number">3.2</span>Technology Stack</h3>
+    <ul>
+      <li>Frontend: React, Vite, Tailwind CSS, Clerk</li>
+      <li>Backend: Express, Node.js, MongoDB, Mongoose</li>
+      <li>Authentication: Clerk</li>
+      <li>Payments: Razorpay</li>
+      <li>Background processing: Inngest</li>
+    </ul>
+    <h3><span class="section-number">3.3</span>Key Features</h3>
+    <ul>
+      <li>User sign-up and login</li>
+      <li>Movie browsing with cards and trailers</li>
+      <li>Interactive seat selection and booking</li>
+      <li>Secure checkout and payment confirmation</li>
+      <li>User booking history and favorites</li>
+      <li>Admin dashboard for shows and bookings</li>
+    </ul>
+    <hr>
+    <h2>Project Structure</h2>
+    <h3><span class="section-number">4.1</span>Root Directory</h3>
+    <p>The project root contains the main `README.md`, run scripts, deployment configuration, and a root `package.json` that orchestrates the client and server.</p>
+    <h3><span class="section-number">4.2</span>Client Directory</h3>
+    <p>The `client` folder contains the React application. Important files include:</p>
+    <ul>
+      <li>`client/src/main.jsx` – application bootstrap and Clerk setup</li>
+      <li>`client/src/App.jsx` – routing and layout</li>
+      <li>`client/src/auth/ProtectedRoute.jsx` – authentication guard</li>
+      <li>`client/src/context/AppContext.jsx` – global state, API client, and auth token handling</li>
+      <li>`client/src/pages/SeatLayout.jsx` – seat selection and booking flow</li>
+    </ul>
+    <h3><span class="section-number">4.3</span>Server Directory</h3>
+    <p>The `server` folder contains Express APIs, middleware, models, and background job hooks.</p>
+    <ul>
+      <li>`server/server.js` – server initialization and route mounting</li>
+      <li>`server/controllers/bookingController.js` – booking and payment logic</li>
+      <li>`server/routes/*` – API route definitions for shows, bookings, users, and admin</li>
+      <li>`server/inngest/index.js` – asynchronous functions for payment checks and email notifications</li>
+    </ul>
+    <hr>
+    <h2>Frontend Architecture</h2>
+    <h3><span class="section-number">5.1</span>Main App Setup</h3>
+    <p>The app uses `react-router-dom` for navigation and wraps the application in `ClerkProvider` when Clerk is enabled. `AppProvider` supplies shared state and API utilities.</p>
+    <pre><code>import { createRoot } from "react-dom/client";
+import "./index.css";
+import App from "./App.jsx";
+import { BrowserRouter } from "react-router-dom";
+import { ClerkProvider } from "@clerk/clerk-react";
+import { AppProvider } from "./context/AppContext.jsx";
+import { isClerkEnabled } from "./utils/clerkFallback";
+
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const clerkEnabled = isClerkEnabled();
+
+const AppTree = () => (
+  <BrowserRouter>
+    <AppProvider>
+      <App />
+    </AppProvider>
+  </BrowserRouter>
+);
+
+if (clerkEnabled) {
+  root.render(
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+      <AppTree />
+    </ClerkProvider>
+  );
+} else {
+  root.render(<AppTree />);
+}</code></pre>
+    <h3><span class="section-number">5.2</span>Authentication Guard</h3>
+    <p>The protected route component ensures that login is required for admin and protected pages. It also gracefully handles Clerk configuration state.</p>
+    <pre><code>import { SignIn } from "@clerk/clerk-react";
+import { useAppContext } from "../context/AppContext";
+import { isClerkEnabled } from "../utils/clerkFallback";
+
+const ProtectedRoute = ({ children }) => {
+  const { user, isAuthLoading } = useAppContext();
+
+  if (!isClerkEnabled()) {
+    return <div>Authentication not configured</div>;
+  }
+
+  if (isAuthLoading) {
+    return <div>Verifying your session...</div>;
+  }
+
+  if (!user) {
+    return <SignIn fallbackRedirectUrl="/admin" />;
+  }
+
+  return children;
+};
+
+export default ProtectedRoute;</code></pre>
+    <h3><span class="section-number">5.3</span>Global Context</h3>
+    <p>The `AppContext` component handles global application state including show data, favorites, admin validation, and authorization tokens.</p>
+    <pre><code>axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
+
+export const AppProvider = ({ children }) => {
+  const [shows, setShows] = useState([]);
+  const [favoriteMovies, setFavoriteMovies] = useState([]);
+  const { getToken, isLoaded } = useSafeAuth();
+
+  const fetchShows = async () => {
+    const { data } = await axios.get("/api/show/all");
+    if (data.success) setShows(data.shows);
+  };
+
+  useEffect(() => {
+    fetchShows();
+  }, []);
+
+  return <AppContext.Provider value={{ shows, favoriteMovies }}>
+    {children}
+  </AppContext.Provider>;
+};</code></pre>
+    <hr>
+    <h2>Booking Flow</h2>
+    <h3><span class="section-number">6.1</span>Seat Selection</h3>
+    <p>The `SeatLayout` page displays theater rows and seat buttons. Seats can be selected up to a maximum of five, and occupied seats are disabled.</p>
+    <h3><span class="section-number">6.2</span>Booking Creation</h3>
+    <p>The frontend creates a booking with `/api/booking/create`. If Razorpay is unavailable during development, the app uses a fallback mock flow to simulate booking and payment.</p>
+    <pre><code>const { data } = await axios.post(
+  "/api/booking/create",
+  { showId: selectedTime.showId, selectedSeats },
+  { headers: { Authorization: `Bearer ${await getToken()}` } }
+);
+
+if (!data.success) {
+  return toast.error(data.message || "Unable to create booking.");
+}</code></pre>
+    <h3><span class="section-number">6.3</span>Payment Verification</h3>
+    <p>After checkout, the client verifies the payment with `/api/booking/verify`, and the backend marks the booking as paid and finalizes seat occupancy.</p>
+    <hr>
+    <h2>Server Architecture</h2>
+    <h3><span class="section-number">7.1</span>Express Setup</h3>
+    <p>The server uses Express, CORS middleware, Clerk middleware, and mounts API routes for booking, show data, user actions, and admin management.</p>
+    <pre><code>import express from "express";
+import cors from "cors";
+import { clerkMiddleware } from "@clerk/express";
+
+const app = express();
+app.use(express.json());
+app.use(cors());
+app.use("/dev", devRouter);
+app.use(clerkMiddleware());
+app.use("/api/booking", bookingRouter);
+app.use("/api/show", showRouter);
+</code></pre>
+    <h3><span class="section-number">7.2</span>Booking Controller</h3>
+    <p>The controller protects seat reservation with atomic updates and uses expiration times so held seats are released if payment is not completed.</p>
+    <pre><code>const show = await prepareShowAndCleanup(showId);
+if (!show) return res.json({ success: false, message: "Show not found." });
+
+const booking = await Booking.create({ user: userId, show: showId, amount, bookedSeats: selectedSeats });
+
+const holdExpiry = new Date(Date.now() + 10 * 60 * 1000);
+const seatUpdates = {};
+selectedSeats.forEach((s) => {
+  seatUpdates[`occupiedSeats.${s}`] = { bookingId: booking._id.toString(), expiresAt: holdExpiry };
+});
+</code></pre>
+    <hr>
+    <h2>Authentication and Authorization</h2>
+    <h3><span class="section-number">8.1</span>Clerk Integration</h3>
+    <p>Clerk manages authentication on the frontend and backend. The application checks whether Clerk is configured and uses the Clerk React components for sign-in and sign-up.</p>
+    <h3><span class="section-number">8.2</span>Admin Authorization</h3>
+    <p>The backend protects admin routes by checking the authenticated Clerk user and confirming admin privileges through the server middleware.</p>
+    <hr>
+    <h2>Screenshot Evidence</h2>
+    <h3>Home Page and Login Modal</h3>
+    <img src="QuickShow_Home_Login.png" alt="Home and Login" />
+    <h3>Movies Page</h3>
+    <img src="QuickShow_Movies_Page.png" alt="Movies Page" />
+    <h3>Admin Login Page</h3>
+    <img src="QuickShow_Admin_Login.png" alt="Admin Login Page" />
+    <hr>
+    <h2>Setup and Run Instructions</h2>
+    <h3><span class="section-number">10.1</span>Prerequisites</h3>
+    <ul>
+      <li>Node.js</li>
+      <li>npm</li>
+      <li>MongoDB or MongoDB Atlas</li>
+    </ul>
+    <h3><span class="section-number">10.2</span>Installation</h3>
+    <p>Install dependencies for both client and server:</p>
+    <pre><code>cd server
+npm install
+cd ../client
+npm install</code></pre>
+    <h3><span class="section-number">10.3</span>Configuration</h3>
+    <p>Create `.env` files from the provided examples in `server/.env.example` and `client/.env.example` and fill in Clerk and payment credentials.</p>
+    <h3><span class="section-number">10.4</span>Run the Application</h3>
+    <pre><code>cd server
+node server.js
+cd ../client
+npx vite --host</code></pre>
+    <p>Open <strong>http://localhost:5173</strong> in the browser.</p>
+    <hr>
+    <h2>Key Benefits</h2>
+    <ul>
+      <li>Clean separation of frontend and backend code</li>
+      <li>Modern authentication with Clerk</li>
+      <li>Realistic booking flow with seat reservation and payment verification</li>
+      <li>Admin dashboard support for management tasks</li>
+      <li>Responsive UI and polished branding</li>
+    </ul>
+    <hr>
+    <h2>Conclusion</h2>
+    <p>QuickShow demonstrates a complete ticket booking system with secure authentication, booking management, payment workflows, and admin capabilities. It is well-suited for college-level presentation and project evaluation.</p>
+  </div>
+</body>
+</html>

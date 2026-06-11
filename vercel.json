@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "buildCommand": "npm --prefix client run build",
+  "outputDirectory": "client/dist",
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server/server.js"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
